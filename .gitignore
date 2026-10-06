@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Written by the book's programs when they run; each run makes its own
+memory/
+lessons/
+combined/
+combined-copy/
+deployed/
+evals/
+live/
