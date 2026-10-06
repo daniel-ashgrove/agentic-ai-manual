@@ -1,0 +1,6 @@
+anthropic==1.11.0
+langchain==1.4.3
+langchain-core==1.6.6
+langchain-anthropic==1.7.5
+langgraph==1.2.12
+opentelemetry-sdk==1.45.0
