@@ -18,7 +18,7 @@ python setup/check_setup.py
 `check_setup.py` checks Python, the packages and your settings, and costs nothing. Most of the code needs no model
 and no account. The programs that call a model need two environment variables: `ANTHROPIC_API_KEY`, a key from the
 Claude Console, and `BOOK_MODEL`, a current model ID from platform.claude.com/docs/en/models/overview. The book's
-Setup & Prerequisites section explains both.
+Appendix D, Setup & Prerequisites, explains both.
 
 ## What is here
 
