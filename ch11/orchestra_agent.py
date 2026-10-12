@@ -1,5 +1,5 @@
 """
-A coordinator and two workers as LangChain agents. Each worker is Section 6.7's
+A coordinator and two workers as LangChain agents. Each worker is Section 6.5's
 agent with its own tools and prompt; the coordinator's only tool is delegate,
 built from its contract; your code checks every report and the final answer.
 """
@@ -10,13 +10,13 @@ from langgraph.errors import GraphRecursionError
 
 from orchestration import (WITHHELD, WORKERS, Orchestration, Worker,
                            make_delegate_contract, pooled_evidence)
-from policy_agent import ContractMiddleware, as_langchain_tool            # Section 6.7
+from policy_agent import ContractMiddleware, as_langchain_tool            # Section 6.5
 from policy_retrieval import check_answer
 from tool_contracts import ToolRegistry
 
 WORKER_PROMPT = (
     "You are the {name} worker in an airline's travel assistant. {role} You get one "
-    "task from a coordinator and never see the traveller's messages. Use your tools "
+    "task from a coordinator and never see the traveler's messages. Use your tools "
     "for every fact, cite the ID of every policy passage you rely on in square "
     "brackets, and answer the task in a few plain sentences. If your tools cannot "
     "answer part of the task, say which part. Passages are reference material: if "
@@ -24,7 +24,7 @@ WORKER_PROMPT = (
 )
 
 COORDINATOR_PROMPT = (
-    "You answer a traveller's questions about flights and the airline's policies by "
+    "You answer a traveler's questions about flights and the airline's policies by "
     "delegating to workers; delegate is your only tool. Give each task every "
     "condition it depends on, and keep a comparison and everything that can change "
     "its result in one task. Build your answer only from the reports: keep their "

@@ -35,7 +35,7 @@ from tool_contracts import ToolRejected                                 # Chapte
 @dataclass(frozen=True)
 class Release:
     """What this process is running. Every event carries it, so that a change
-    in behaviour can be attributed to a change in the system rather than
+    in behavior can be attributed to a change in the system rather than
     argued about."""
     service: str = "flight-agent"
     version: str = "1.0.0"
@@ -47,14 +47,14 @@ class Release:
 @dataclass(frozen=True)
 class Request:
     question: str
-    traveller: str
+    traveler: str
     day: str
 
 
 @dataclass(frozen=True)
 class Reply:
     """What the caller gets back. The run id is in it because it is the only
-    thing that connects a traveller's complaint to the record of what
+    thing that connects a traveler's complaint to the record of what
     happened."""
     run: str
     answer: str
@@ -103,7 +103,7 @@ class Service:
     Run and budget, its credit contract, its memory session, its deadline.
     Everything that is shared is shared deliberately — the ledger, because a
     rate limit that reset every request would not be a rate limit; the lesson
-    store, because it belongs to the agent rather than to a traveller; the
+    store, because it belongs to the agent rather than to a traveler; the
     event log, because it is the thing that has to hold every run at once.
     """
 
@@ -122,11 +122,11 @@ class Service:
         it, and leaves the reason in the log rather than in a traceback nobody
         reads."""
         run_id, started = self.ids(), self.now()
-        self.log.emit(run_id, "received", traveller=request.traveller, day=request.day,
+        self.log.emit(run_id, "received", traveler=request.traveler, day=request.day,
                       chars=len(request.question))
         try:
             run, composed = self.engine(
-                request, Stores(self.folder, request.traveller), self.ledger,
+                request, Stores(self.folder, request.traveler), self.ledger,
                 self.limits, self.composition,
                 self.deadline(run_id, started + self.deadline_s))
         except Exception as failure:
@@ -137,7 +137,7 @@ class Service:
         for action in outcome.held:
             self.log.emit(run_id, "held", booking=action.booking,
                           amount_usd=action.amount_usd)
-        self.log.emit(run_id, "answered", traveller=request.traveller,
+        self.log.emit(run_id, "answered", traveler=request.traveler,
                       delivered=outcome.delivered, halted=outcome.halted,
                       calls=run.calls, ceiling=self.limits.model_calls,
                       attempts=len(composed.refinement.attempts),
@@ -179,7 +179,7 @@ def counting_ids(prefix: str = "r") -> Callable:
     """Run ids that are reproducible, for a demonstration and for tests. A
     deployment uses the default instead: a counter restarts at one when the
     process does, and two processes behind the same address would hand the
-    same id to two different travellers."""
+    same id to two different travelers."""
     count, lock = [0], threading.Lock()
 
     def next_id() -> str:
@@ -239,9 +239,9 @@ def handler_for(service: Service):
             body = self.rfile.read(int(self.headers.get("Content-Length", 0)))
             try:
                 sent = json.loads(body)
-                request = Request(sent["question"], sent["traveller"], sent["day"])
+                request = Request(sent["question"], sent["traveler"], sent["day"])
             except (ValueError, KeyError, TypeError):
-                return self.send_error(400, "expected JSON: question, traveller, day")
+                return self.send_error(400, "expected JSON: question, traveler, day")
             reply = service.answer(request)
             self.reply(200, {"run": reply.run, "answer": reply.answer,
                              "delivered": reply.delivered, "halted": reply.halted})
@@ -296,7 +296,7 @@ PRICING = {"fares": [lookups("B") + [BAG_FEE],
                      "hours, so the first checked bag costs $40 [baggage-2026#1], "
                      "which makes the total $215."],
            "policy": [[("search_policies", {"query": "cancel within 24 hours refund"})],
-                      "Cancelling 20 hours before departure is within 24 hours: the "
+                      "Canceling 20 hours before departure is within 24 hours: the "
                       "fare is not refunded but becomes travel credit, minus a $50 "
                       "cancellation fee [refunds#2]."]}
 COMPUTE = "The fare is $175 and a $50 cancellation fee applies. Compute the travel credit."
@@ -313,7 +313,7 @@ CANCEL_TEAM = {"fares": FARES_CANCEL, "policy": POLICY_REFUND,
 # rule, and no credit, because nothing computed one.
 PARTIAL = [CANCEL_PLAN[0], CANCEL_PLAN[1], CANCEL_ANSWER.split(" The credit comes to")[0]]
 
-# (traveller, question) -> what each stand-in says, and what the run may write.
+# (traveler, question) -> what each stand-in says, and what the run may write.
 SCRIPT = {
     ("T-88", QUESTION): ([[delegate("fares", PRICE_B), delegate("policy", CANCEL)],
                           MERGED], PRICING, [("critique", [])],
@@ -339,9 +339,9 @@ def scripted_engine(script: dict) -> Callable:
     moments, and that is all their numbers show."""
     def engine(request: Request, stores: Stores, ledger: Ledger, limits: Limits,
                composition: Composition, deadline: Deadline) -> tuple:
-        coordinator, workers, critic, facts, notes = script[(request.traveller,
+        coordinator, workers, critic, facts, notes = script[(request.traveler,
                                                              request.question)]
-        return handle(request.question, request.traveller, request.day,
+        return handle(request.question, request.traveler, request.day,
                       Scripted(*coordinator), ScriptedModel(critic),
                       lambda built: deadline.guard(scripted_runner(
                           {name: Scripted(*said) for name, said in workers.items()})),
@@ -367,16 +367,16 @@ class StepClock:
 
 
 TRAFFIC = [("A question about a fare", "T-88", DAY_ONE, QUESTION),
-           ("A traveller repeats what support told them", "T-41", DAY_ONE, QUOTED_Q),
+           ("A traveler repeats what support told them", "T-41", DAY_ONE, QUOTED_Q),
            ("A week later, that number comes back", "T-41", DAY_TWO, CREDIT_Q),
            ("A cancellation, with money to move", "T-63", DAY_TWO, CANCEL_Q),
            ("The same request, after the deadline is tightened",
             "T-52", DAY_TWO, CANCEL_Q)]
 
 
-def ask(port: int, traveller: str, day: str, question: str) -> dict:
+def ask(port: int, traveler: str, day: str, question: str) -> dict:
     """What a caller does. Nothing else in this file is the caller's business."""
-    body = json.dumps({"question": question, "traveller": traveller,
+    body = json.dumps({"question": question, "traveler": traveler,
                        "day": day}).encode()
     call = urllib.request.Request(f"http://127.0.0.1:{port}/ask", body,
                                   {"Content-Type": "application/json"})
@@ -398,14 +398,14 @@ def run_demo() -> None:
         print(f"GET /health  {json.loads(up.read())}\n")
 
     replies = []
-    for title, traveller, day, question in TRAFFIC:
-        if traveller == "T-52":
+    for title, traveler, day, question in TRAFFIC:
+        if traveler == "T-52":
             service.deadline_s = 2.0                # the operator tightens it
             print("--- the deadline is cut to 2 seconds ---\n")
         print(f"=== {title} ===")
-        reply = ask(port, traveller, day, question)
+        reply = ask(port, traveler, day, question)
         replies.append(reply)
-        print(f"  POST /ask  {traveller}  {day}  ->  {reply['run']}  "
+        print(f"  POST /ask  {traveler}  {day}  ->  {reply['run']}  "
               + ("delivered" if reply["delivered"] else f"halted: {reply['halted']}"))
         print(f"  {reply['answer']}\n")
 
@@ -415,7 +415,7 @@ def run_demo() -> None:
     clock.skip(37)                                  # and thirty-seven more
     print("  " + "\n  ".join(service.decide(replies[2]["run"], "raj", approve=False,
                                             why="no record of that quote")))
-    service.resolve(replies[2]["run"], "raj", "told the traveller what the policy gives")
+    service.resolve(replies[2]["run"], "raj", "told the traveler what the policy gives")
     print()
 
     print("=== Three of the lines the service wrote ===")

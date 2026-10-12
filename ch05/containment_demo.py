@@ -1,4 +1,4 @@
-"""The path-containment flaw class from Section 5.8, in miniature, using a temporary directory."""
+"""The path-containment flaw class from Section 5.6, in miniature, using a temporary directory."""
 
 import tempfile
 from pathlib import Path

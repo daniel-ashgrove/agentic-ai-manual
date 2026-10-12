@@ -5,7 +5,7 @@ guardrails.py unchanged. A third worker holds the one tool that asks for money.
 
 Two shapes of the same checkpoint appear here. The layer's own records the request
 and lets the run finish; LangChain's HumanInTheLoopMiddleware stops the graph and
-waits. Section 11.8 compares them.
+waits. Section 11.6 compares them.
 """
 
 from langchain.agents import create_agent
@@ -20,14 +20,14 @@ from guardrails import (HALTED, Guarded, Ledger, Limits, Run, decide,
 from orchestra_agent import COORDINATOR_PROMPT, agent_runner, build_worker  # Chapter 9
 from orchestration import (WITHHELD, WORKERS, Orchestration, Worker,
                            make_delegate_contract, pooled_evidence)
-from policy_agent import ContractMiddleware, as_langchain_tool             # Section 6.7
+from policy_agent import ContractMiddleware, as_langchain_tool             # Section 6.5
 from policy_retrieval import check_answer
 from tool_contracts import ToolRegistry, ToolRejected
 
 GUARDED_COORDINATOR_PROMPT = COORDINATOR_PROMPT + (
     " One worker, service, records a request for travel credit; it does not issue "
     "credit, and a person decides afterwards. Ask it only for an amount a worker has "
-    "reported from a tool, and tell the traveller the amount you requested and that "
+    "reported from a tool, and tell the traveler the amount you requested and that "
     "someone will confirm it."
 )
 
@@ -35,15 +35,15 @@ GUARDED_COORDINATOR_PROMPT = COORDINATOR_PROMPT + (
 class GuardedOrchestra:
     """Chapter 9's Orchestra with the guardrail layer around it. Build once, then
     call answer() per question: each question gets its own Run, its own budget and
-    its own credit contract, so nothing leaks between travellers."""
+    its own credit contract, so nothing leaks between travelers."""
 
     def __init__(self, coordinator_model, worker_models: dict, ledger: Ledger,
                  limits: Limits = Limits(), max_steps: int = 25):
         self.model, self.worker_models = coordinator_model, worker_models
         self.ledger, self.limits, self.max_steps = ledger, limits, max_steps
 
-    def answer(self, question: str, traveller: str, day: str) -> tuple:
-        run = Run(traveller, question, day, self.limits)
+    def answer(self, question: str, traveler: str, day: str) -> tuple:
+        run = Run(traveler, question, day, self.limits)
         contract = make_credit_contract(run, self.ledger)
         workers = dict(WORKERS, service=service_worker(contract))
         agents = {name: build_worker(self.worker_models[name], worker)

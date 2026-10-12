@@ -1,7 +1,7 @@
 """
 A coordinator and workers, standard library only.
 
-The coordinator splits a traveller's question into tasks and delegates each one
+The coordinator splits a traveler's question into tasks and delegates each one
 to a worker agent with its own tools. Three decisions stay with your code, not
 the models:
 
@@ -58,7 +58,7 @@ class Report:
     task: str                  # the brief: the coordinator's words
     answer: str                # the worker's summary: a claim
     evidence: tuple            # the tool results it was shown, collected by your code
-    problems: tuple            # the check, against the traveller's words and evidence
+    problems: tuple            # the check, against the traveler's words and evidence
     model_calls: int
 
     @property
@@ -79,7 +79,7 @@ def for_coordinator(report: Report) -> str:
         return f"[report from {report.worker}] {report.answer}"
     return (f"[report from {report.worker} withheld] It did not pass the checks: "
             f"{'; '.join(_short(p) for p in report.problems)}. Delegate again with a "
-            f"clearer task, or tell the traveller this part could not be answered.")
+            f"clearer task, or tell the traveler this part could not be answered.")
 
 
 def make_delegate_contract(workers: dict, question: str, run: Runner, reports: list,
@@ -103,7 +103,7 @@ def make_delegate_contract(workers: dict, question: str, run: Runner, reports: l
     def delegate(worker: str, task: str) -> str:
         task = " ".join(task.split())
         answer, evidence, calls = run(workers[worker], task)
-        # The traveller's words and the worker's own tool results are the evidence.
+        # The traveler's words and the worker's own tool results are the evidence.
         # The brief is not: a number the coordinator wrote proves nothing.
         report = Report(worker, task, answer, tuple(evidence),
                         tuple(check_answer(answer, question, evidence)), calls)
@@ -113,7 +113,7 @@ def make_delegate_contract(workers: dict, question: str, run: Runner, reports: l
     return ToolContract(
         name="delegate",
         description=("Give one task to one worker and get its report back. Workers "
-                     "see only the task you write, not the traveller's message, so "
+                     "see only the task you write, not the traveler's message, so "
                      "put every condition the task depends on into it. Workers: "
                      + "; ".join(f"{w.name}: {w.role}" for w in workers.values())),
         input_schema={
@@ -141,7 +141,7 @@ WITHHELD = ("I couldn't produce an answer I can trace to the airline's policies.
 
 @dataclass(frozen=True)
 class Orchestration:
-    answer: str                # what the traveller is sent
+    answer: str                # what the traveler is sent
     delivered: bool
     draft: str                 # the coordinator's merged answer, before the check
     problems: tuple            # the final check's findings
@@ -225,12 +225,12 @@ def delegate(worker: str, task: str) -> tuple:
 
 BAG_FEE = ("search_policies", {"query": "checked bag fee"})
 PRICE_B = "Price flight B with one checked bag."
-CANCEL = "What happens to a ticket cancelled 20 hours before departure?"
+CANCEL = "What happens to a ticket canceled 20 hours before departure?"
 FARES_B = [lookups("B") + [BAG_FEE], [("calculate", {"expression": "175 + 40"})],
            "Flight B costs $175 and takes 3.5 hours. It is longer than 3 hours, so the "
            "first checked bag costs $40 [baggage-2026#1], which makes the total $215."]
 POLICY_CANCEL = [[("search_policies", {"query": "cancel within 24 hours refund"})],
-                 "Cancelling 20 hours before departure is within 24 hours: the fare is not "
+                 "Canceling 20 hours before departure is within 24 hours: the fare is not "
                  "refunded but becomes travel credit, minus a $50 cancellation fee [refunds#2]."]
 MERGED = ("Flight B costs $175 and takes 3.5 hours. It is longer than 3 hours, so the first "
           "checked bag costs $40 [baggage-2026#1], which makes the total $215. If you cancel "
@@ -267,7 +267,7 @@ RUNS = [                 # (title, question, coordinator's replies, each worker'
 
     ("3b. The same question, with the condition kept in one brief", CHEAPEST,
      [[delegate("fares", "Find the cheapest flight that arrives before 18:00 for a "
-                         "traveller checking one bag, counting the bag fee in each total.")],
+                         "traveler checking one bag, counting the bag fee in each total.")],
       "Flight A is the cheapest flight that gets you there before 18:00 with your bag: it "
       "arrives at 17:30 and takes 2.5 hours, so the first checked bag is free "
       "[baggage-2026#1], and you will pay $210. Flight B has the lower fare, $175, but it "
@@ -296,7 +296,7 @@ def show(result: Orchestration) -> None:
         for p in r.problems:
             print(f"      - {_short(p)}")
         if not r.passes and not check_answer(r.answer, r.task, list(r.evidence)):
-            print("      (checked against the brief instead of the traveller's words, "
+            print("      (checked against the brief instead of the traveler's words, "
                   "it would have passed)")
     evidence = pooled_evidence(result.reports)
     passed = sum(r.passes for r in result.reports)

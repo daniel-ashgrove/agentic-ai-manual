@@ -57,7 +57,7 @@ BEST = cheapest_arriving_before("18:00")
 CASES = (
     Case("bag-and-cancel", QUESTION,
          (f"${bag_total('B')}", "travel credit", "$50"), ("refunded in full",),
-         "Flight B with one bag is $215. Cancelling 20 hours out is within 24 hours: "
+         "Flight B with one bag is $215. Canceling 20 hours out is within 24 hours: "
          "travel credit, minus a $50 fee."),
     Case("cheapest-with-bag",
          "Which flight gets me there before 18:00 for the least money? "
@@ -143,7 +143,7 @@ def summarize(scores: list[Score]) -> dict:
     return {"trials": len(scores), "correct": outcomes.count("correct"),
             "wrong": outcomes.count("wrong"), "withheld": outcomes.count("withheld"),
             "traceable": sum(s.traceable for s in delivered),
-           "delivered": len(delivered),
+            "delivered": len(delivered),
             "model_calls": sum(s.model_calls for s in scores),
             "tokens": sum(s.tokens for s in scores), "cases": len(by_case),
             "every_trial_correct": sum(all(v) for v in by_case.values()),    # pass^k

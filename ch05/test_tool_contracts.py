@@ -76,9 +76,10 @@ class RegistrationFailsLoudly(unittest.TestCase):
             self.build(bad)
 
     def test_names(self):
-        for bad_name in ("has space", "", "x" * 65, "dot.name"):
+        for bad_name in ("has space", "", "x" * 129, "dot.name"):
             with self.assertRaises(ContractError):
                 self.build(schema(a={"type": "string"}), name=bad_name)
+        self.build(schema(a={"type": "string"}), name="x" * 128)   # the API's limit
         good = ToolContract("t", "d", schema(a={"type": "string"}), handler=lambda a: a)
         with self.assertRaises(ContractError):
             ToolRegistry([good, good])

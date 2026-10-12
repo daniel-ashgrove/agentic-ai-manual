@@ -65,7 +65,7 @@ def export(events: list, tracer) -> int:
         if not (start and end):
             continue                     # a run still in flight is not a span yet
         span = tracer.start_span(
-            f"invoke_agent {start['service']}", kind=SpanKind.CLIENT,
+            f"invoke_agent {start['service']}", kind=SpanKind.INTERNAL,
             start_time=int(start["at"] * SECOND),
             attributes={
                 OPERATION: "invoke_agent",
@@ -74,7 +74,7 @@ def export(events: list, tracer) -> int:
                 VERSION: start["version"],
                 MODEL: start["model"],
                 # The application manages this conversation, so it owns the id.
-                CONVERSATION: f"{start['traveller']}:{start['day']}",
+                CONVERSATION: f"{start['traveler']}:{start['day']}",
                 "flight.run.id": run,
                 "flight.run.delivered": end["delivered"],
                 "flight.run.halt_condition": end["halted"] or "",

@@ -4,8 +4,8 @@
     python check_setup.py --live   also makes one very small call to the model
 
 Every check prints OK, NOTE or FIX. FIX means something will not run until you change
-it. NOTE means something is missing that only the live scripts need: everything else
-in the book runs without it.
+it. NOTE means something is missing that only the programs calling a model need: everything
+else in the book runs without it.
 """
 import os
 import sys
@@ -32,33 +32,37 @@ def check_python() -> None:
     if sys.version_info >= (3, 10):
         report("OK", f"Python {found}")
     else:
-        report("FIX", f"Python {found}: this book's code needs Python 3.10 or newer")
+        report("FIX", f"Python {found}: the packages below need Python 3.10 or newer "
+                      f"(a chapter's own demonstration runs on 3.9)")
 
 
 def check_packages() -> None:
+    missing = []
     for name, tested in TESTED.items():
         try:
             found = version(name)
         except PackageNotFoundError:
-            report("FIX", f"{name} is not installed. Install everything with:\n"
-                          f"        {PIP_LINE}")
+            missing.append(name)
             continue
         if found == tested:
             report("OK", f"{name} {found}")
         else:
             report("NOTE", f"{name} {found} (the book was tested with {tested})")
+    if missing:
+        report("FIX", f"not installed: {', '.join(missing)}. Install everything with:\n"
+                      f"        {PIP_LINE}")
 
 
 def check_settings() -> None:
     if os.environ.get("ANTHROPIC_API_KEY"):
         report("OK", "ANTHROPIC_API_KEY is set")
     else:
-        report("NOTE", "ANTHROPIC_API_KEY is not set: needed only for the live scripts")
+        report("NOTE", "ANTHROPIC_API_KEY is not set: needed only for programs that call a model")
     model = os.environ.get("BOOK_MODEL")
     if model:
         report("OK", f"BOOK_MODEL is {model}")
     else:
-        report("NOTE", "BOOK_MODEL is not set: needed only for the live scripts")
+        report("NOTE", "BOOK_MODEL is not set: needed only for programs that call a model")
 
 
 def check_live() -> None:

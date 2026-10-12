@@ -34,7 +34,7 @@ llm = ChatAnthropic(model=MODEL)
 @tool
 def calculate(expression: str) -> float:
     """Evaluate a basic arithmetic expression and return the numeric result."""
-    # Same narrow-grammar caveat as Chapter 3, Section 3.5: this
+    # Same narrow-grammar caveat as Chapter 3, Section 3.3: this
     # character filter scopes eval() to a fixed, tiny grammar for a
     # teaching example. It is not a general input-safety pattern.
     allowed_chars = set("0123456789+-*/(). ")
@@ -108,7 +108,7 @@ async def plan_step(state: PlanExecute) -> dict:
 
 # --- The executor --------------------------------------------------
 # This is Chapter 3's loop, not a replacement for it: create_agent
-# builds the same reason -> act -> observe cycle from Section 3.5,
+# builds the same reason -> act -> observe cycle from Section 3.3,
 # scoped here to a single step instead of the whole task.
 #
 # As of this writing, LangGraph's older create_react_agent prebuilt

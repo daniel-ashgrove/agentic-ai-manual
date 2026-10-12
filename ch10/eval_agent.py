@@ -1,5 +1,5 @@
 """
-The harness around live agents: Section 6.7's one-call agent and Section 8.7's
+The harness around live agents: Section 6.5's one-call agent and Section 8.5's
 critique agent, run on every case, with every model call and token counted, and
 lessons judged on copies of the store before the real one is changed.
 """
@@ -16,18 +16,18 @@ from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.messages import ToolMessage
 from langchain_core.tracers.context import register_configure_hook
 
-from critique_agent import EVIDENCE_TOOLS, CritiqueAgent                 # Section 8.7
+from critique_agent import EVIDENCE_TOOLS, CritiqueAgent                 # Section 8.5
 from eval_harness import (CASES, ScoreLog, System, Trial, decide_lesson,
                           run_eval)
-from policy_agent import (SYSTEM_PROMPT, ContractMiddleware,              # Section 6.7
+from policy_agent import (SYSTEM_PROMPT, ContractMiddleware,              # Section 6.5
                           as_langchain_tool, contracts, registry)
 from policy_retrieval import check_answer
 from self_critique import LessonStore
 
 STATED_PROMPT = SYSTEM_PROMPT + (
     " Cite the passage for every fee you state. When you compare flights, add every "
-    "fee that applies to each flight before you choose. When a traveller asks about "
-    "cancelling, say what they get back and any fee that is deducted.")
+    "fee that applies to each flight before you choose. When a traveler asks about "
+    "canceling, say what they get back and any fee that is deducted.")
 
 
 # --- Counting every model call, at every level ------------------------------
@@ -70,7 +70,7 @@ def _evidence(messages) -> tuple:
 # --- The systems under test --------------------------------------------------
 
 def one_call_system(model, system_prompt: str = SYSTEM_PROMPT) -> System:
-    """Section 6.7's agent: one answer, checked, delivered or withheld."""
+    """Section 6.5's agent: one answer, checked, delivered or withheld."""
     agent = create_agent(model=model, tools=[as_langchain_tool(c) for c in contracts],
                          system_prompt=system_prompt,
                          middleware=[ContractMiddleware(registry)])
@@ -88,7 +88,7 @@ def one_call_system(model, system_prompt: str = SYSTEM_PROMPT) -> System:
 
 def critique_system(model, critic, store: LessonStore, run_id: str,
                     max_revisions: int = 2) -> System:
-    """Section 8.7's agent, a fresh one for every trial, recording its episodes in
+    """Section 8.5's agent, a fresh one for every trial, recording its episodes in
     `store`. Pass a copy: an evaluation should not write to the store the agent
     reads."""
     def system(case, n: int) -> Trial:

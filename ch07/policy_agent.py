@@ -33,7 +33,7 @@ def _error(content: str, call_id: str) -> ToolMessage:
 
 
 class ContractMiddleware(AgentMiddleware):
-    """Section 5.7's middleware, with the registry passed in rather than global.
+    """Section 5.5's middleware, with the registry passed in rather than global.
     (An async agent also needs the awrap_tool_call twin shown there.)"""
 
     def __init__(self, registry: ToolRegistry):

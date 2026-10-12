@@ -48,7 +48,7 @@ def calls(*pairs):
 
 
 ASK = "What do I get back if I cancel 20 hours out?"
-RULE = ("Cancelling within 24 hours of departure means the fare becomes travel credit "
+RULE = ("Canceling within 24 hours of departure means the fare becomes travel credit "
         "minus a $50 cancellation fee, valid for 12 months [refunds#2].")
 POLICY = [calls(("search_policies",
                  {"query": "cancel within 24 hours refund checked bag fees"})), RULE]
@@ -69,8 +69,8 @@ class TheSameServiceAroundRealAgents(unittest.TestCase):
 
     def test_a_graph_run_produces_the_same_events_as_a_scripted_one(self):
         coordinator = [calls(("delegate", {"worker": "policy", "task":
-                                           "What does a traveller get back when "
-                                           "cancelling 20 hours before departure?"})),
+                                           "What does a traveler get back when "
+                                           "canceling 20 hours before departure?"})),
                        RULE]
         with tempfile.TemporaryDirectory() as folder:
             service, log, _ = self.service(folder, engine_for(coordinator, POLICY))
@@ -81,13 +81,13 @@ class TheSameServiceAroundRealAgents(unittest.TestCase):
 
     def test_the_dashboard_reads_an_agent_runs_log_unchanged(self):
         coordinator = [calls(("delegate", {"worker": "policy", "task":
-                                           "What does a traveller get back when "
-                                           "cancelling 20 hours before departure?"})),
+                                           "What does a traveler get back when "
+                                           "canceling 20 hours before departure?"})),
                        RULE]
         with tempfile.TemporaryDirectory() as folder:
             service, log, _ = self.service(folder, engine_for(coordinator, POLICY))
             service.answer(d.Request(ASK, "T-41", d.DAY_ONE))
-            figures = w.summarise(log.read())
+            figures = w.summarize(log.read())
             self.assertEqual((figures["runs"], figures["delivered"]), (1, 1))
             self.assertEqual(figures["releases"],
                              [f"flight-agent 1.0.0 / {da.LIVE.model}"])

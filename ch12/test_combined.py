@@ -18,9 +18,9 @@ from self_critique import ScriptedModel, lesson_report
 logging.getLogger("contracts").setLevel(logging.CRITICAL)
 
 REFUND = [[("search_policies", {"query": "cancel within 24 hours refund"})],
-          "Cancelling within 24 hours of departure means the fare becomes travel credit "
+          "Canceling within 24 hours of departure means the fare becomes travel credit "
           "minus a $50 cancellation fee, valid for 12 months [refunds#2]."]
-RULE = ("Cancelling 20 hours out is within 24 hours, so the fare becomes travel credit "
+RULE = ("Canceling 20 hours out is within 24 hours, so the fare becomes travel credit "
         "minus a $50 cancellation fee, valid for 12 months [refunds#2].")
 UNCITED = RULE + " Your checked-bag fee is refunded whatever the timing."
 CITED = UNCITED[:-1] + " [refunds#3]."
@@ -28,14 +28,14 @@ ASK = "What do I get back if I cancel 20 hours out?"
 FROM_MEMORY = "The credit on BK-9910 comes to the $190 you were quoted."
 
 MEMORY_Q = "Put through the credit we talked about on BK-9910."
-MEMORY_ANSWER = ("Cancelling within 24 hours of departure means the fare becomes travel "
+MEMORY_ANSWER = ("Canceling within 24 hours of departure means the fare becomes travel "
                  "credit minus a $50 cancellation fee [refunds#2], and the credit on "
                  "BK-9910 comes to the $190 you were quoted.")
 CREDIT = ("request_credit", {"booking": "BK-9910", "amount_usd": 190,
-                             "reason": "the credit the traveller was quoted [refunds#2]"})
+                             "reason": "the credit the traveler was quoted [refunds#2]"})
 SERVICE = [[CREDIT], "Recorded a request for $190 of travel credit on BK-9910."]
 PROFILE = [[("recall_memory", {})],
-           "The traveller was told support would give $190 back on BK-9910."]
+           "The traveler was told support would give $190 back on BK-9910."]
 QUOTED_FACT = {"key": "credit-quoted",
                "fact": "Was told support would give $190 back on BK-9910.",
                "quote": "Support told me I'd get $190 back on BK-9910"}
@@ -59,7 +59,7 @@ class Fixture(unittest.TestCase):
             staff or c.WORKERS, composition)
 
     def remember(self, day="2026-06-01"):
-        """A fact the traveller stated in an earlier session, through Chapter 7's gate."""
+        """A fact the traveler stated in an earlier session, through Chapter 7's gate."""
         session = MemorySession(self.stores.memory(), day)
         session.hear("Support told me I'd get $190 back on BK-9910 if I cancel it.")
         c.ToolRegistry(c.make_memory_contracts(session)).execute("remember", QUOTED_FACT)
@@ -162,7 +162,7 @@ class Admit(Fixture):
         self.assertIs(dict(g.HALT_CONDITIONS)["untraceable-amount"],
                       g.untraceable_amount)
 
-    def test_the_profile_workers_tool_is_bound_to_this_traveller(self):
+    def test_the_profile_workers_tool_is_bound_to_this_traveler(self):
         self.remember()
         run, composed = self.run_one(
             MEMORY_Q, [[delegate("profile", "What were we told?")], FROM_MEMORY],
@@ -190,7 +190,7 @@ class Keep(Fixture):
         self.assertEqual(self.stores.memory().records, [])
         self.assertEqual(self.stores.lessons().records, [])
 
-    def test_the_write_gate_still_refuses_a_fact_the_traveller_did_not_state(self):
+    def test_the_write_gate_still_refuses_a_fact_the_traveler_did_not_state(self):
         run, composed = self.deliver(facts=(QUOTED_FACT,))
         self.assertTrue(any("REFUSED" in line for line in composed.written))
         self.assertEqual(self.stores.memory().facts(), [])

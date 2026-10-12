@@ -37,7 +37,7 @@ class Watch:
     calls_share: float = 0.8           # of the ceiling, averaged over runs
 
 
-def summarise(events: list) -> dict:
+def summarize(events: list) -> dict:
     """Five questions, one pass over the log."""
     answered = [e for e in events if e["event"] == "answered"]
     escalated = {e["run"]: e["at"] for e in events if e["event"] == "escalated"}
@@ -93,7 +93,7 @@ def alerts(figures: dict, watch: Watch = Watch()) -> list:
                     f"queue or stop promising a same-day answer.")
     if figures["open"]:
         said.append(f"{figures['open']} escalated run(s) have no reply at all. These "
-                    f"are travellers who were told a colleague would come back.")
+                    f"are travelers who were told a colleague would come back.")
     if rate is not None and rate > watch.approval_ceiling:
         said.append(f"{rate:.0%} of requests were approved. A reviewer who approves "
                     f"everything is not a control; find out whether they are reading.")
@@ -207,7 +207,7 @@ id: the record a person reads is on the run&rsquo;s <code>answered</code> line.<
 
 
 def render(events: list, path: str, watch: Watch = Watch()) -> dict:
-    figures = summarise(events)
+    figures = summarize(events)
     with open(path, "w", encoding="utf-8") as out:
         out.write(page(figures, alerts(figures, watch), watch))
     return figures

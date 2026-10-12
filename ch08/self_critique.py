@@ -121,9 +121,9 @@ def review_report(findings: list[Finding]) -> str:
 # --- Remembering attempts, and the gate for lessons -------------------------
 
 class LessonStore(MemoryStore):
-    """Chapter 7's store, opened for the agent instead of a traveller. Episodes
+    """Chapter 7's store, opened for the agent instead of a traveler. Episodes
     record how each answer went; lessons record what a failed draft taught.
-    A lesson's quote field holds its evidence: a fact quotes the traveller, a
+    A lesson's quote field holds its evidence: a fact quotes the traveler, a
     lesson quotes your checks."""
 
     def _next_id(self, kind: str) -> str:
@@ -288,7 +288,7 @@ SESSIONS = {             # what the model says at each step of each session, in 
                   "the first checked bag costs $40 [baggage-2026#1], which makes the total "
                   "$215. If you cancel 20 hours before departure, the fare is refunded in "
                   "full [refunds#1]."),
-        ("critique", ["refunds#1 covers cancelling more than 24 hours before departure. "
+        ("critique", ["refunds#1 covers canceling more than 24 hours before departure. "
                       "20 hours before is within 24 hours, so refunds#2 applies: travel "
                       "credit, minus a $50 fee."]),
         ("revise", GROUNDED),
@@ -339,7 +339,7 @@ class ScriptedModel:
 
 
 def gather_evidence() -> list[str]:
-    """The four tool results from Section 6.6: what a well-behaved run was shown."""
+    """The four tool results from Section 6.4: what a well-behaved run was shown."""
     registry = ToolRegistry(CONTRACTS + [make_search_contract(PolicyLibrary(DOCUMENTS))])
     calls = [("look_up_flight", {"flight_id": "B"}),
              ("search_policies", {"query": "checked bag fee"}),

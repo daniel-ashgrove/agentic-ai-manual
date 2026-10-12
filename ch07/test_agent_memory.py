@@ -76,13 +76,13 @@ class Store(unittest.TestCase):
         self.store().add_episode("Asked: x", "s1")
         self.assertEqual(os.listdir(self.folder), ["t-1041.json"])
 
-    def test_travellers_do_not_share_memory(self):
+    def test_travelers_do_not_share_memory(self):
         self.store().add_fact("a", "A.", "q", "s1")
         self.assertEqual(recall_report(self.store("t-2207")), NO_MEMORY)
 
 
 class WriteGate(unittest.TestCase):
-    def test_a_quote_the_traveller_said_is_accepted(self):
+    def test_a_quote_the_traveler_said_is_accepted(self):
         self.assertEqual(gate([SAID]), [])
 
     def test_quotes_match_despite_case_spacing_and_curly_apostrophes(self):

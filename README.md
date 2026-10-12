@@ -31,7 +31,7 @@ chapter's new files and, unchanged, every earlier file they import. Run a chapte
 | `ch01` | `agent_vs_chatbot.py`; `three_countries.py`, the exercise solution | No |
 | `ch03` | `react_loop.py` | Yes |
 | `ch04` | `plan_and_execute.py` | Yes |
-| `ch05` | `tool_contracts.py`; `containment_demo.py`; the exercise files `exercise_broken.py` and `ch3_calculate_probe.py` | No |
+| `ch05` | `tool_contracts.py`; `containment_demo.py`, the case study's check; `ch3_calculate_probe.py`, Section 5.1's four inputs; `exercise_broken.py`, the exercise | No |
 | `ch06` | `policy_retrieval.py`; `policy_agent.py`, the live script; `api_search_results.py` | Live script only |
 | `ch07` | `agent_memory.py`; `memory_agent.py`, the live script | Live script only |
 | `ch08` | `self_critique.py`; `critique_agent.py`, the live script | Live script only |
@@ -56,7 +56,7 @@ python -m unittest
 None yet. If a library update changes how a program behaves, the fix is made here, and this section says what
 changed and why.
 
-## Licence
+## License
 
-The code is released under the MIT licence; see `LICENSE`. The licence covers the code only. The book's text and
+The code is released under the MIT license; see `LICENSE`. The license covers the code only. The book's text and
 figures are not part of this repository and remain all rights reserved.

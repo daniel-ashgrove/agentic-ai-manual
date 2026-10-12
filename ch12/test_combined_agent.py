@@ -55,7 +55,7 @@ def delegate(worker, task):
     return ("delegate", {"worker": worker, "task": task})
 
 
-RULE = ("Cancelling within 24 hours of departure means the fare becomes travel credit "
+RULE = ("Canceling within 24 hours of departure means the fare becomes travel credit "
         "minus a $50 cancellation fee, valid for 12 months [refunds#2].")
 UNCITED = RULE + " Your checked-bag fee is refunded whatever the timing."
 CITED = UNCITED[:-1] + " [refunds#3]."
@@ -63,7 +63,7 @@ ASK = "What do I get back if I cancel 20 hours out?"
 POLICY_REPORT = [calls(("search_policies", {"query": "cancel within 24 hours refund "
                                                      "checked bag fees"})), RULE]
 CREDIT = {"booking": "BK-9910", "amount_usd": 190,
-          "reason": "the credit the traveller was quoted [refunds#2]"}
+          "reason": "the credit the traveler was quoted [refunds#2]"}
 MEMORY_ANSWER = RULE + " The credit on BK-9910 comes to the $190 you were quoted."
 QUOTED_FACT = {"key": "credit-quoted",
                "fact": "Was told support would give $190 back on BK-9910.",

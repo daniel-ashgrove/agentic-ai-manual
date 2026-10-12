@@ -36,7 +36,7 @@ def agent_engine(coordinator_model, worker_models: dict, critic_model,
                                "it started; it was not run")
         system = CombinedAgent(coordinator_model, worker_models, critic_model,
                                ledger, stores, limits, composition, max_steps)
-        return system.answer(request.question, request.traveller, request.day)
+        return system.answer(request.question, request.traveler, request.day)
     return engine
 
 

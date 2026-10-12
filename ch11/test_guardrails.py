@@ -14,7 +14,7 @@ from tool_contracts import ToolRegistry
 
 
 def a_run(**kwargs) -> g.Run:
-    return g.Run(kwargs.pop("traveller", "T-1"), kwargs.pop("question", "cancel BK-1"),
+    return g.Run(kwargs.pop("traveler", "T-1"), kwargs.pop("question", "cancel BK-1"),
                  "2026-06-02", kwargs.pop("limits", g.Limits()))
 
 
@@ -137,7 +137,7 @@ class HaltConditions(unittest.TestCase):
         echo = report("service", "Recorded $125 on BK-1.", ("Recorded $125 on BK-1.",))
         self.assertIsNotNone(g.untraceable_amount(run, result_with(echo)))
 
-    def test_a_number_the_traveller_wrote_counts_as_seen(self):
+    def test_a_number_the_traveler_wrote_counts_as_seen(self):
         run = a_run(question="refund my $125, booking BK-1")
         run.held.append(g.Action("T-1", "BK-1", 125, "because", "2026-06-02"))
         self.assertIsNone(g.untraceable_amount(run, result_with()))
@@ -172,7 +172,7 @@ class HaltConditions(unittest.TestCase):
 
 class WhatLeavesTheSystem(unittest.TestCase):
 
-    def test_a_halted_run_tells_the_traveller_nothing_moved(self):
+    def test_a_halted_run_tells_the_traveler_nothing_moved(self):
         run = a_run(limits=g.Limits(model_calls=1))
         run.calls = 2
         outcome = g.decide(run, result_with())
@@ -187,7 +187,7 @@ class WhatLeavesTheSystem(unittest.TestCase):
         self.assertIn("$125 of travel credit on BK-4471", outcome.answer)
         self.assertIn("one business day", outcome.answer)
 
-    def test_the_escalation_carries_the_draft_the_traveller_never_saw(self):
+    def test_the_escalation_carries_the_draft_the_traveler_never_saw(self):
         run = a_run()
         run.held.append(g.Action("T-1", "BK-1", 85, "fare minus fees", "2026-06-02"))
         outcome = g.decide(run, result_with(report(), draft="The credit is $85."))
@@ -207,8 +207,8 @@ class WhatLeavesTheSystem(unittest.TestCase):
 class TheWholeRun(unittest.TestCase):
 
     def run_one(self, index: int):
-        title, traveller, question, coordinator, workers, limits = g.RUNS[index]
-        return g.guarded(question, traveller, g.DAY, Scripted(*coordinator),
+        title, traveler, question, coordinator, workers, limits = g.RUNS[index]
+        return g.guarded(question, traveler, g.DAY, Scripted(*coordinator),
                          lambda built: scripted_runner(
                              {name: Scripted(*replies)
                               for name, replies in workers.items()}),

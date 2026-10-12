@@ -31,13 +31,13 @@ class Limits:
     model_calls: int = 16              # the coordinator's and the workers' together
     delegations: int = 4               # Chapter 9's budget, now one limit among several
     credit_usd: int = 300              # the largest credit a run may even ask for
-    credits_per_day: int = 1           # per traveller: a rate limit, not a per-run cap
+    credits_per_day: int = 1           # per traveler: a rate limit, not a per-run cap
 
 
 @dataclass(frozen=True)
 class Action:
     """A request to move money. Recorded by the tool; never carried out by it."""
-    traveller: str
+    traveler: str
     booking: str
     amount_usd: float
     reason: str                        # the model's words, for a reviewer to read
@@ -47,7 +47,7 @@ class Action:
 @dataclass
 class Run:
     """What your code knows about one question while it is being answered."""
-    traveller: str
+    traveler: str
     question: str
     day: str
     limits: Limits = field(default_factory=Limits)
@@ -56,7 +56,7 @@ class Run:
     log: list = field(default_factory=list)        # one line per guardrail decision
 
     def note(self, decision: str, detail: str) -> None:
-        self.log.append(f"{self.day}  {self.traveller:7} {decision:9} {detail}")
+        self.log.append(f"{self.day}  {self.traveler:7} {decision:9} {detail}")
 
 
 class Ledger:
@@ -66,8 +66,8 @@ class Ledger:
     def __init__(self):
         self.applied, self.refused = [], []
 
-    def count(self, traveller: str, day: str) -> int:
-        return sum(a.traveller == traveller and a.day == day for a in self.applied)
+    def count(self, traveler: str, day: str) -> int:
+        return sum(a.traveler == traveler and a.day == day for a in self.applied)
 
     def apply(self, action: Action, approved_by: str) -> str:
         """The only place credit is issued. Your code calls it after the run has
@@ -94,29 +94,29 @@ def make_credit_contract(run: Run, ledger: Ledger) -> ToolContract:
             run.note("refused", f"${amount:g} on {booking}: over the "
                                 f"${run.limits.credit_usd} request limit")
             return [f"${amount:g} is more than the ${run.limits.credit_usd} a request "
-                    f"may be for. Tell the traveller support will take this one."]
+                    f"may be for. Tell the traveler support will take this one."]
         if any(held.booking == booking for held in run.held):
             return [f"a credit on {booking} is already recorded and waiting for "
                     f"review; do not request it again"]
-        if ledger.count(run.traveller, run.day) >= run.limits.credits_per_day:
+        if ledger.count(run.traveler, run.day) >= run.limits.credits_per_day:
             run.note("refused", f"${amount:g} on {booking}: at today's limit of "
                                 f"{run.limits.credits_per_day} issued credit")
-            return [f"this traveller has had the credit a day allows; tell them "
+            return [f"this traveler has had the credit a day allows; tell them "
                     f"support will take this one from here"]
         return []
 
     def record(booking: str, amount_usd: float, reason: str) -> str:
-        run.held.append(Action(run.traveller, booking, amount_usd,
+        run.held.append(Action(run.traveler, booking, amount_usd,
                                " ".join(reason.split()), run.day))
         run.note("held", f"${amount_usd:g} on {booking}, waiting for a person")
         return (f"Recorded a request for ${amount_usd:g} of travel credit on "
                 f"{booking}. No credit has been issued, and none will be until a "
-                f"person approves it. Tell the traveller the amount and that someone "
+                f"person approves it. Tell the traveler the amount and that someone "
                 f"confirms it within one business day.")
 
     return ToolContract(
         name="request_credit",
-        description=("Ask for travel credit on a cancelled booking. This records a "
+        description=("Ask for travel credit on a canceled booking. This records a "
                      "request for a person to review; it issues nothing. State the "
                      "amount the policy gives and cite the passage it comes from."),
         input_schema={
@@ -143,7 +143,7 @@ def service_worker(contract: ToolContract) -> Worker:
     outside text: it gets a brief and calls one tool. Chapter 9's rule holds here
     because of what this worker is built from, not because of what it is told."""
     return Worker("service",
-                  "Records a request for travel credit on a cancelled booking.",
+                  "Records a request for travel credit on a canceled booking.",
                   (contract,))
 
 
@@ -157,7 +157,7 @@ HALTED = ("I've passed this to a colleague rather than answer it myself. They'll
 
 def untraceable_amount(run: Run, result: Orchestration) -> Optional[str]:
     """Every requested amount has to be a number this run actually saw: in the
-    traveller's words, or in something a tool returned. A number that appeared
+    traveler's words, or in something a tool returned. A number that appeared
     only in a brief or a report was written by a model."""
     before = [r for r in result.reports if r.worker != "service"]
     seen = numbers_in(run.question)
@@ -172,7 +172,7 @@ def untraceable_amount(run: Run, result: Orchestration) -> Optional[str]:
 
 def unsupported_answer(run: Run, result: Orchestration) -> Optional[str]:
     """Chapter 9 withheld an answer that failed the final check. Withholding is
-    where a guardrail starts, not where it ends: the traveller still has a
+    where a guardrail starts, not where it ends: the traveler still has a
     question, and nobody has been told that it went unanswered."""
     return (f"the answer failed its checks: {result.problems[0]}"
             if result.problems else None)
@@ -205,7 +205,7 @@ HALT_CONDITIONS = [("budget-spent", budget_spent),
 
 @dataclass(frozen=True)
 class Guarded:
-    answer: str                        # what the traveller is sent
+    answer: str                        # what the traveler is sent
     delivered: bool
     halted: Optional[str]              # the name of the condition that fired
     why: str
@@ -216,9 +216,9 @@ class Guarded:
 
 
 def escalation(run: Run, outcome: Guarded) -> str:
-    """What a person is handed: enough to finish the traveller's question, and
+    """What a person is handed: enough to finish the traveler's question, and
     enough to answer for whatever is decided next."""
-    lines = [f"ESCALATED  {run.day}  traveller {run.traveller}",
+    lines = [f"ESCALATED  {run.day}  traveler {run.traveler}",
              f"  halt condition    {outcome.halted}: {outcome.why}",
              f"  they asked        {run.question}",
              f"  the system wrote  {outcome.result.draft or '(nothing)'}",
@@ -232,7 +232,7 @@ def escalation(run: Run, outcome: Guarded) -> str:
     return "\n".join(lines)
 
 
-def guarded(question: str, traveller: str, day: str, coordinator: Callable,
+def guarded(question: str, traveler: str, day: str, coordinator: Callable,
             runner_for: Callable, ledger: Ledger, limits: Limits = Limits(),
             workers: dict = WORKERS) -> tuple:
     """Run Chapter 9's orchestration inside the limits, then decide what leaves.
@@ -240,7 +240,7 @@ def guarded(question: str, traveller: str, day: str, coordinator: Callable,
     runner_for(workers) builds Chapter 9's Runner. The layer wraps it so that
     model calls are counted and the limit is enforced while the run is happening
     rather than discovered when it is over."""
-    run = Run(traveller, question, day, limits)
+    run = Run(traveler, question, day, limits)
     contract = make_credit_contract(run, ledger)
     workers = dict(workers, service=service_worker(contract))
     inner = runner_for(workers)
@@ -302,7 +302,7 @@ WORDS_Q = ("Please cancel booking BK-5120 — it's about twenty hours out. I pai
 
 FARE_TASK = ("Booking BK-4471 is on flight B with one checked bag. Report the fare and "
              "the checked-bag fee that applied.")
-REFUND_TASK = "What does a traveller get back when cancelling 20 hours before departure?"
+REFUND_TASK = "What does a traveler get back when canceling 20 hours before departure?"
 
 FARES_CANCEL = [lookups("B") + [BAG_FEE],
                 "Flight B's fare is $175 and it takes 3.5 hours, so the first checked bag "
@@ -311,10 +311,10 @@ FARES_CANCEL = [lookups("B") + [BAG_FEE],
                 "The travel credit is $125."]
 POLICY_REFUND = [[("search_policies", {"query": "cancel within 24 hours refund "
                                                 "checked bag fees"})],
-                 "Cancelling within 24 hours of departure means the fare is not refunded: "
+                 "Canceling within 24 hours of departure means the fare is not refunded: "
                  "it becomes travel credit minus a $50 cancellation fee, valid for 12 "
                  "months [refunds#2]. Checked-bag fees are refunded whenever a booking is "
-                 "cancelled [refunds#3]."]
+                 "canceled [refunds#3]."]
 CANCEL_ANSWER = ("Your $175 fare isn't refunded 20 hours out: it becomes travel credit "
                  "minus a $50 cancellation fee, valid for 12 months [refunds#2]. Your "
                  "checked-bag fee is refunded whatever the timing [refunds#3], and on a "
@@ -333,7 +333,7 @@ def recorded(booking: str, amount) -> str:
 
 NORMAL, TIGHT = Limits(), Limits(model_calls=6)
 
-RUNS = [  # (title, traveller, question, coordinator's replies, workers' replies, limits)
+RUNS = [  # (title, traveler, question, coordinator's replies, workers' replies, limits)
     ("1. Nothing to stop", "T-88", QUESTION,
      [[delegate("fares", PRICE_B), delegate("policy", CANCEL)], MERGED],
      {"fares": FARES_B, "policy": POLICY_CANCEL}, NORMAL),
@@ -363,8 +363,8 @@ RUNS = [  # (title, traveller, question, coordinator's replies, workers' replies
     ("4. The same rule, on a right answer", "T-63", WORDS_Q,
      [[delegate("policy", REFUND_TASK)],
       [delegate("service", "Request $125 travel credit on BK-5120: the fare the "
-                           "traveller paid, minus the $50 cancellation fee [refunds#2].")],
-      "Cancelling about twenty hours before departure is within 24 hours, so your fare "
+                           "traveler paid, minus the $50 cancellation fee [refunds#2].")],
+      "Canceling about twenty hours before departure is within 24 hours, so your fare "
       "becomes travel credit minus a $50 cancellation fee, valid for 12 months "
       "[refunds#2]."],
      {"policy": POLICY_REFUND,
@@ -378,7 +378,7 @@ RUNS = [  # (title, traveller, question, coordinator's replies, workers' replies
       "I can't put a second credit through on BK-7702 today, so I've passed it to "
       "support; they'll email you within one business day."],
      {"service": [[credit("BK-7702", 90, "a second cancellation today [refunds#2]")],
-                  "I could not record a credit on BK-7702: this traveller has had the "
+                  "I could not record a credit on BK-7702: this traveler has had the "
                   "credit a day allows."]}, NORMAL),
 
     ("6. A run that spends its budget", "T-77", CANCEL_Q,
@@ -405,10 +405,10 @@ def show(run: Run, outcome: Guarded) -> None:
 
 def run_demo() -> None:
     ledger, log, requested, refused = Ledger(), [], 0, 0
-    for title, traveller, question, coordinator, workers, limits in RUNS:
+    for title, traveler, question, coordinator, workers, limits in RUNS:
         print(f"=== {title} ===")
         run, outcome = guarded(
-            question, traveller, DAY, Scripted(*coordinator),
+            question, traveler, DAY, Scripted(*coordinator),
             lambda built: scripted_runner({name: Scripted(*replies)
                                            for name, replies in workers.items()}),
             ledger, limits)
@@ -419,7 +419,7 @@ def run_demo() -> None:
         if outcome.delivered and outcome.held:
             print("  A person reads the request, and your code applies the decision:")
             print("    " + review(outcome.held[0], "dana", ledger, approve=True))
-            log.append(f"{DAY}  {traveller:7} {'issued':9} "
+            log.append(f"{DAY}  {traveler:7} {'issued':9} "
                        f"${outcome.held[0].amount_usd:g} on {outcome.held[0].booking}, "
                        f"approved by dana")
         print()

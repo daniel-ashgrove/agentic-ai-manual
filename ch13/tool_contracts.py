@@ -44,7 +44,7 @@ _PROP_KEYS = {"type", "enum", "minimum", "maximum", "minLength", "maxLength",
 _SCALARS = {"string", "integer", "number", "boolean"}
 _ONLY_FOR = {"minimum": {"integer", "number"}, "maximum": {"integer", "number"},
              "minLength": {"string"}, "maxLength": {"string"}}
-_TOOL_NAME = re.compile(r"[a-zA-Z0-9_-]{1,64}")   # the Anthropic API's name rule
+_TOOL_NAME = re.compile(r"[a-zA-Z0-9_-]{1,128}")   # the Anthropic API's name rule
 
 
 def check_schema(tool: str, schema: dict) -> None:

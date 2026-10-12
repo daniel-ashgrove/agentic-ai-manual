@@ -43,20 +43,20 @@ class Composition:
     """The decisions that belong to the assembly rather than to any component."""
     critique_reserve: int = 5      # model calls held back from the loop for review
     max_revisions: int = 2         # Chapter 8's budget, now inside Chapter 11's
-    max_episodes: int = 3          # how much of the traveller's past is recalled
+    max_episodes: int = 3          # how much of the traveler's past is recalled
     max_lessons: int = 3           # how many of the agent's own notes are shown
 
 
 @dataclass(frozen=True)
 class Stores:
-    """Two stores, two scopes: what one traveller told us, and what the agent
+    """Two stores, two scopes: what one traveler told us, and what the agent
     learned about its own drafts. Neither of them is the record."""
     folder: str
-    traveller: str
+    traveler: str
     agent: str = "flight-agent"
 
     def memory(self) -> MemoryStore:
-        return MemoryStore(f"{self.folder}/travellers", self.traveller.lower())
+        return MemoryStore(f"{self.folder}/travelers", self.traveler.lower())
 
     def lessons(self) -> LessonStore:
         return LessonStore(f"{self.folder}/agent", self.agent)
@@ -72,7 +72,7 @@ class Composed:
     written: tuple                 # what this run left behind, if anything
 
 
-def handle(question: str, traveller: str, day: str, coordinator: Callable,
+def handle(question: str, traveler: str, day: str, coordinator: Callable,
            critic: Callable, runner_for: Callable, ledger: Ledger, stores: Stores,
            facts: tuple = (), notes: tuple = (), limits: Limits = Limits(),
            workers: dict = WORKERS,
@@ -91,16 +91,16 @@ def handle(question: str, traveller: str, day: str, coordinator: Callable,
     recall = recall_report(session.store, composition.max_episodes)
     lessons = lesson_report(stores.lessons(), composition.max_lessons)
 
-    run = Run(traveller, question, day, limits)
+    run = Run(traveler, question, day, limits)
     workers = dict(workers, service=service_worker(make_credit_contract(run, ledger)))
-    if "profile" in workers:      # its tool is bound to this traveller and session
+    if "profile" in workers:      # its tool is bound to this traveler and session
         workers["profile"] = replace(workers["profile"],
                                      contracts=(make_memory_contracts(session)[0],))
     inner = runner_for(workers)
     loop_ceiling = limits.model_calls - composition.critique_reserve
 
     def briefed(question: str, transcript: list):
-        """The coordinator's context holds what the traveller told us in earlier
+        """The coordinator's context holds what the traveler told us in earlier
         sessions and what the agent learned from its own drafts. Both are
         labeled by the chapters that wrote them, and neither is an instruction."""
         run.calls += 1
@@ -130,18 +130,18 @@ def handle(question: str, traveller: str, day: str, coordinator: Callable,
 
 def answer_evidence(result: Orchestration, recall: str) -> list:
     """What the check reads before an answer goes out. The recall report is in
-    it, because an answer may state a fact the traveller gave us in an earlier
+    it, because an answer may state a fact the traveler gave us in an earlier
     session, and a check that could not see it would reject every sentence that
     used one.
 
     It is not in what the spending rule reads. That set is Chapter 11's, built
     from the workers' own tool results, and it stays as narrow as that chapter
     left it — unless a worker is given the memory tool, which is the one line of
-    wiring Section 12.6's third run turns on and off."""
+    wiring Section 12.4's third run turns on and off."""
     return list(pooled_evidence(result.reports)) + [recall]
 
 
-PROFILE = Worker("profile", "Reports what this traveller has told us in earlier "
+PROFILE = Worker("profile", "Reports what this traveler has told us in earlier "
                             "sessions.", ())
 
 
@@ -182,14 +182,14 @@ def keep(outcome: Guarded, refinement: Refinement, session: MemorySession,
     session's model would read it as something the system had answered.
 
     The two gates are unchanged: a fact still has to be traceable to the
-    traveller's own words this session, and a lesson still has to name a check
+    traveler's own words this session, and a lesson still has to name a check
     that failed and a later attempt that passed."""
     if not outcome.delivered:
         return ()
     written, lessons = [], stores.lessons()
     episode = close_session(session, outcome.answer)
     attempts = record_attempts(lessons, refinement, day)
-    written.append(f"traveller [{episode.memory_id}] the session, by your code")
+    written.append(f"traveler [{episode.memory_id}] the session, by your code")
     written.append(f"agent     [{attempts.memory_id}] the attempts, by your code")
     remember = ToolRegistry(make_memory_contracts(session))
     keeper = ToolRegistry([make_lesson_contract(lessons, refinement, day,
@@ -205,40 +205,40 @@ def keep(outcome: Guarded, refinement: Refinement, session: MemorySession,
     return tuple(written)
 
 
-# --- Demonstration: one traveller's two days, with scripted models -------------
+# --- Demonstration: one traveler's two days, with scripted models -------------
 
-FOLDER, TRAVELLER = "combined", "T-41"
+FOLDER, TRAVELER = "combined", "T-41"
 DAY_ONE, DAY_TWO = "2026-06-02", "2026-06-09"
 
 QUOTED_Q = ("Support told me I'd get $190 back on BK-9910 if I cancel it. What does "
-            "the policy actually say about cancelling 20 hours out?")
+            "the policy actually say about canceling 20 hours out?")
 CREDIT_Q = "Go ahead and cancel BK-9910 for me and put through the credit we talked about."
 
-REFUND_TASK = "What does a traveller get back when cancelling 20 hours before departure?"
+REFUND_TASK = "What does a traveler get back when canceling 20 hours before departure?"
 POLICY_REFUND = [[("search_policies", {"query": "cancel within 24 hours refund "
                                                 "checked bag fees"})],
-                 "Cancelling within 24 hours of departure means the fare is not refunded: "
+                 "Canceling within 24 hours of departure means the fare is not refunded: "
                  "it becomes travel credit minus a $50 cancellation fee, valid for 12 "
                  "months [refunds#2]. Checked-bag fees are refunded whenever a booking is "
-                 "cancelled [refunds#3]."]
+                 "canceled [refunds#3]."]
 
-QUOTED_RULE = ("Support's $190 isn't an amount the policy sets: cancelling 20 hours "
+QUOTED_RULE = ("Support's $190 isn't an amount the policy sets: canceling 20 hours "
                "before departure is within 24 hours, so the fare is not refunded but "
                "becomes travel credit, minus a $50 cancellation fee, valid for 12 months "
                "[refunds#2].")
 QUOTED_DRAFT = QUOTED_RULE + " Your checked-bag fee is refunded whatever the timing."
 QUOTED_FIXED = QUOTED_DRAFT[:-1] + " [refunds#3]."
 
-CREDIT_ANSWER = ("Cancelling within 24 hours of departure means your fare becomes travel "
+CREDIT_ANSWER = ("Canceling within 24 hours of departure means your fare becomes travel "
                  "credit minus a $50 cancellation fee, valid for 12 months [refunds#2], "
                  "and the credit on BK-9910 comes to the $190 you were quoted.")
-CREDIT_TASK = ("Request $190 travel credit on BK-9910: the amount the traveller was "
+CREDIT_TASK = ("Request $190 travel credit on BK-9910: the amount the traveler was "
                "quoted [refunds#2].")
-PROFILE_TASK = "What has this traveller been told about credit on BK-9910?"
+PROFILE_TASK = "What has this traveler been told about credit on BK-9910?"
 PROFILE_REPLIES = [[("recall_memory", {})],
-                   "The traveller was told support would give $190 back on BK-9910."]
+                   "The traveler was told support would give $190 back on BK-9910."]
 SERVICE_REPLIES = [[("request_credit", {"booking": "BK-9910", "amount_usd": 190,
-                                        "reason": "the credit the traveller was quoted "
+                                        "reason": "the credit the traveler was quoted "
                                                   "[refunds#2]"})],
                    "Recorded a request for $190 of travel credit on BK-9910; a person "
                    "confirms it within one business day."]
@@ -262,7 +262,7 @@ RUNS = [
                 "the first checked bag costs $40 [baggage-2026#1], which makes the total "
                 "$215."],
       "policy": [[("search_policies", {"query": "cancel within 24 hours refund"})],
-                 "Cancelling 20 hours before departure is within 24 hours: the fare is "
+                 "Canceling 20 hours before departure is within 24 hours: the fare is "
                  "not refunded but becomes travel credit, minus a $50 cancellation fee "
                  "[refunds#2]."]},
      [("critique", [])], (BAG_FACT,), (EARLY_LESSON,), WORKERS, Composition()),
@@ -328,7 +328,7 @@ def run_one(title: str, day: str, question: str, coordinator: list, workers: dic
     print(f"=== {title} ===")
     print(f"  Workers: {team(staff)}")
     run, composed = handle(
-        question, TRAVELLER, day, Scripted(*coordinator), ScriptedModel(critic),
+        question, TRAVELER, day, Scripted(*coordinator), ScriptedModel(critic),
         lambda built: scripted_runner({name: Scripted(*replies)
                                        for name, replies in workers.items()}),
         ledger, stores, facts, notes, workers=staff, composition=composition)
@@ -339,7 +339,7 @@ def run_one(title: str, day: str, question: str, coordinator: list, workers: dic
 
 def run_demo() -> None:
     shutil.rmtree(FOLDER, ignore_errors=True)          # the demonstration starts clean
-    stores, ledger, log = Stores(FOLDER, TRAVELLER), Ledger(), []
+    stores, ledger, log = Stores(FOLDER, TRAVELER), Ledger(), []
     print(f"=== {DAY_ONE} ===\n")
     for title, day, question, coordinator, workers, critic, facts, notes, staff, comp \
             in RUNS:
@@ -354,7 +354,7 @@ def run_demo() -> None:
             shutil.copytree(FOLDER, folder)
         log.append(run_one(title, DAY_TWO, question, coordinator, workers,
                            [("critique", [])], (), (), staff, Composition(),
-                           Stores(folder, TRAVELLER),
+                           Stores(folder, TRAVELER),
                            ledger if folder == FOLDER else Ledger()))
 
     print("=== What each run left behind ===")
@@ -366,14 +366,14 @@ def run_demo() -> None:
     print(f"  Delivered: {delivered}; halted: {len(log) - delivered}; "
           f"actions recorded: {sum(len(c.outcome.held) for _, c in log)}; "
           f"issued: {len(ledger.applied)}")
-    print("\nThe traveller's memory, which the next session's model will be shown:")
-    for line in recall_report(Stores(FOLDER, TRAVELLER).memory()).splitlines():
+    print("\nThe traveler's memory, which the next session's model will be shown:")
+    for line in recall_report(Stores(FOLDER, TRAVELER).memory()).splitlines():
         print(f"  {line}" if line else "")
     print("\nThe agent's notes about its own drafts:")
-    for line in lesson_report(Stores(FOLDER, TRAVELLER).lessons()).splitlines():
+    for line in lesson_report(Stores(FOLDER, TRAVELER).lessons()).splitlines():
         print(f"  {line}" if line else "")
     asked = sorted({run.day for run, _ in log})
-    kept = sorted({r.session for r in Stores(FOLDER, TRAVELLER).memory().records})
+    kept = sorted({r.session for r in Stores(FOLDER, TRAVELER).memory().records})
     print(f"\n  Days in the record: {', '.join(asked)}. Days in memory: {', '.join(kept)}.")
 
 

@@ -1,5 +1,5 @@
 """
-A self-critiquing agent: Section 6.7's agent and check, a critic that reads each
+A self-critiquing agent: Section 6.5's agent and check, a critic that reads each
 answer the check passes, revisions your code asks for, and lessons kept in
 Chapter 7's store through a gate.
 """
@@ -7,7 +7,7 @@ Chapter 7's store through a gate.
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
-from policy_agent import (SYSTEM_PROMPT, WITHHELD, ContractMiddleware,   # Section 6.7
+from policy_agent import (SYSTEM_PROMPT, WITHHELD, ContractMiddleware,   # Section 6.5
                           as_langchain_tool, contracts as POLICY_CONTRACTS)
 from self_critique import (Finding, LessonStore, attempt_history, check_findings,
                            lesson_report, make_lesson_contract, record_attempts,
@@ -19,8 +19,8 @@ EVIDENCE_TOOLS = {"look_up_flight", "calculate",              # not notes, not r
 NO_ARGS = {"type": "object", "properties": {}, "additionalProperties": False}
 
 CRITIC_PROMPT = (
-    "You review an answer to a traveller's question against the tool results it was "
-    "based on. Report only problems that would change what the traveller does: a "
+    "You review an answer to a traveler's question against the tool results it was "
+    "based on. Report only problems that would change what the traveler does: a "
     "passage that does not support the sentence citing it, a rule applied to the wrong "
     "case, part of the question left unanswered. Write one problem per line, starting "
     "with '- '. If there are none, reply exactly: NO ISSUES"

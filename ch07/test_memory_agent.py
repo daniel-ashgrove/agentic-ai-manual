@@ -98,10 +98,10 @@ class MemoryWiring(unittest.TestCase):
         model = first_session(self.folder, write={**GOOD_WRITE, "quote": "I prefer aisle seats"})
         refusals = [m for m in model.seen[-1] if isinstance(m, ToolMessage) and m.status == "error"]
         self.assertEqual(len(refusals), 1)
-        self.assertIn("does not appear in anything the traveller said", refusals[0].content)
+        self.assertIn("does not appear in anything the traveler said", refusals[0].content)
         self.assertEqual(MemoryStore(self.folder, "t-1041").facts(), [])
 
-    def test_another_traveller_is_shown_nothing(self):
+    def test_another_traveler_is_shown_nothing(self):
         first_session(self.folder)
         self.assertIn("No notes from earlier sessions", recalled(second_session(self.folder, "t-2207")))
 

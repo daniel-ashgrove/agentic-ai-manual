@@ -50,8 +50,8 @@ class Serving(unittest.TestCase):
             asks = [("T-88", DAY, QUESTION), ("T-63", LATER, d.CANCEL_Q)] * 4
             done = []
 
-            def one(traveller, day, question):
-                done.append(service.answer(d.Request(question, traveller, day)))
+            def one(traveler, day, question):
+                done.append(service.answer(d.Request(question, traveler, day)))
 
             threads = [threading.Thread(target=one, args=a) for a in asks]
             for thread in threads:
@@ -65,7 +65,7 @@ class Serving(unittest.TestCase):
             self.assertTrue(all(e["calls"] <= e["ceiling"] for e in answered))
             self.assertEqual(sorted(len(r.held) for r in done), [0] * 4 + [1] * 4)
 
-    def test_one_travellers_memory_is_not_another_travellers(self):
+    def test_one_travelers_memory_is_not_another_travelers(self):
         with tempfile.TemporaryDirectory() as folder:
             service, _, _ = service_in(folder)
             service.answer(d.Request(d.QUOTED_Q, "T-41", DAY))
@@ -191,7 +191,7 @@ class Watching(unittest.TestCase):
         service.decide(held.run, "dana", approve=True)
         service.decide(halted.run, "raj", approve=False, why="no record of that quote")
         service.resolve(halted.run, "raj", "answered by hand")
-        self.figures = w.summarise(log.read())
+        self.figures = w.summarize(log.read())
 
     def tearDown(self):
         self.folder.cleanup()
