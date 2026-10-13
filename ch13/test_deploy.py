@@ -46,7 +46,11 @@ class Serving(unittest.TestCase):
 
     def test_concurrent_runs_do_not_share_a_budget_or_an_action(self):
         with tempfile.TemporaryDirectory() as folder:
-            service, log, _ = service_in(folder)
+            # The step clock is one counter shared by every thread, so eight
+            # runs at once advance each other's clocks and a slow-to-start run
+            # can reach a 20-second deadline it never really spent. Deadlines
+            # have their own tests; this one is about budgets and actions.
+            service, log, _ = service_in(folder, deadline_s=1e9)
             asks = [("T-88", DAY, QUESTION), ("T-63", LATER, d.CANCEL_Q)] * 4
             done = []
 

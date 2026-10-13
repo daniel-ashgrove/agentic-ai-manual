@@ -52,7 +52,7 @@ def decide_next_step(memory: dict) -> dict:
 
 
 def run_agent(max_steps: int = 6) -> str:
-    memory, steps = {}, 0
+    memory, steps, failures = {}, 0, 0
     for _ in range(max_steps):
         steps += 1
         step = decide_next_step(memory)
@@ -62,6 +62,7 @@ def run_agent(max_steps: int = 6) -> str:
         result = get_population(step["arg"])  # act
         if not result["ok"]:
             # observe + self-correct: drop the bad result, try again
+            failures += 1
             continue
         memory[step["arg"]] = result["value"]  # observe: record it
 
@@ -74,7 +75,7 @@ def run_agent(max_steps: int = 6) -> str:
     return (
         f"{larger} has more people (France: {fr:,}, Germany: {de:,}, "
         f"difference: {diff:,}). Resolved in {steps} steps, "
-        f"including one recovered tool failure."
+        f"including {failures} recovered tool failure{'' if failures == 1 else 's'}."
     )
 
 

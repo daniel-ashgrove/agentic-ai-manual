@@ -37,10 +37,10 @@ CALCULATOR_TOOL = {
 def calculate(expression: str) -> float:
     """The one external tool this agent can call.
 
-    Restricting the character set below narrows what can be expressed,
-    but character filtering is not a general defense for eval() -- this
-    pattern is scoped to a teaching example with a fixed, tiny grammar,
-    not a template for production input handling.
+    The filter below limits which characters can appear, not which
+    expressions are allowed: '2**8' passes it, and so would a power whose
+    result is too large to finish computing. It keeps this teaching
+    example short; it is not a template for handling untrusted input.
     """
     allowed_chars = set("0123456789+-*/(). ")
     if not set(expression) <= allowed_chars:

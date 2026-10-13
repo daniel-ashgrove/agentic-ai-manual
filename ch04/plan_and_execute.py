@@ -34,9 +34,9 @@ llm = ChatAnthropic(model=MODEL)
 @tool
 def calculate(expression: str) -> float:
     """Evaluate a basic arithmetic expression and return the numeric result."""
-    # Same narrow-grammar caveat as Chapter 3, Section 3.3: this
-    # character filter scopes eval() to a fixed, tiny grammar for a
-    # teaching example. It is not a general input-safety pattern.
+    # Same calculator as Chapter 3, with the same limit: the filter
+    # restricts characters, not expressions ('2**8' passes), so it is a
+    # teaching shortcut, not an input-safety pattern.
     allowed_chars = set("0123456789+-*/(). ")
     if not set(expression) <= allowed_chars:
         raise ValueError(f"Unsafe expression: {expression}")
@@ -204,7 +204,7 @@ app = workflow.compile()
 
 async def main() -> None:
     task = (
-        "Three flights are on offer -- A, B, and C. Book the cheapest "
+        "Three flights are on offer -- A, B, and C. Find the cheapest "
         "of the ones that arrive before 6pm, and tell me the total "
         "cost, including a $40 baggage fee only if that flight's "
         "duration is over 3 hours."
