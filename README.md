@@ -29,7 +29,7 @@ chapter's new files and, unchanged, every earlier file they import. Run a chapte
 | --- | --- | --- |
 | `setup` | `check_setup.py`, the environment check; `requirements.txt`, the tested package versions | Only with `--live` |
 | `ch01` | `agent_vs_chatbot.py`; `three_countries.py`, the exercise solution | No |
-| `ch03` | `react_loop.py` | Yes |
+| `ch03` | `react_loop.py`; `test_react_loop.py`, which runs the loop with a scripted stand-in | `react_loop.py` only |
 | `ch04` | `plan_and_execute.py` | Yes |
 | `ch05` | `tool_contracts.py`; `containment_demo.py`, the case study's check; `ch3_calculate_probe.py`, Section 5.1's four inputs; `exercise_broken.py`, the exercise | No |
 | `ch06` | `policy_retrieval.py`; `policy_agent.py`, the live script; `api_search_results.py` | Live script only |
