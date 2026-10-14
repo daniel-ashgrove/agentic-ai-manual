@@ -59,4 +59,4 @@ changed and why.
 ## License
 
 The code is released under the MIT license; see `LICENSE`. The license covers the code only. The book's text and
-figures are not part of this repository and remain all rights reserved.
+figures are not part of this repository, and all rights to them are reserved.

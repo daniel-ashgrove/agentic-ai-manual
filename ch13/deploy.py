@@ -196,7 +196,7 @@ class EventLog:
 
     Chapter 11's record is prose, written for a person who was not there, and
     it stays exactly as it was: every `answered` event carries it verbatim.
-    This is the same decisions as fields, for the program that has to answer
+    These are the same decisions as fields, for the program that has to answer
     questions about ten thousand runs rather than read one.
     """
 
