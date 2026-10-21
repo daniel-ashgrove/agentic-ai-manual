@@ -94,6 +94,13 @@ class Compare(unittest.TestCase):
         with self.assertRaises(ValueError):
             eh.compare(scores({"x": "cc"}), scores({"x": "c"}))
 
+    def test_a_repeated_case_and_trial_is_refused_on_either_side(self):
+        once, twice = scores({"x": "c", "y": "c"}), scores({"x": "c", "y": "c"})
+        twice.append(scores({"x": "w"})[0])          # x, trial 1, a second time
+        for first, second in ((twice, once), (once, twice)):
+            with self.assertRaises(ValueError):
+                eh.compare(first, second)
+
     def test_one_case_has_no_standard_error(self):
         self.assertTrue(math.isnan(eh.compare(scores({"x": "c"}), scores({"x": "w"})).standard_error))
 

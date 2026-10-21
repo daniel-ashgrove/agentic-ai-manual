@@ -210,6 +210,7 @@ def make_search_contract(library: PolicyLibrary,
 # --- The check: is the answer traceable to what the model was shown? -------
 
 _CITATION = re.compile(r"\[([a-z0-9-]+#\d+)\]")
+_AFTER_STOP = re.compile(r"([.!?])((?:\s*\[[a-z0-9-]+#\d+\])+)")   # "fee. [refunds#3]"
 _PASSAGE = re.compile(r"^\[([a-z0-9-]+#\d+)\] (.*)\n(.*)$", re.M)
 _NUMBER = re.compile(r"\d+(?:\.\d+)?")
 
@@ -231,7 +232,9 @@ def check_answer(answer: str, question: str, tool_results: list[str]) -> list[st
             observed |= _numbers(result)
 
     problems = []
-    for sentence in re.split(r"(?<=[.!?])\s+", answer.strip()):
+    # A citation written just after a full stop belongs to the sentence it follows.
+    answer = _AFTER_STOP.sub(lambda m: " " + m[2].strip() + m[1], answer.strip())
+    for sentence in re.split(r"(?<=[.!?])\s+", answer):
         cited = _CITATION.findall(sentence)
         numbers = _numbers(_CITATION.sub("", sentence))
         support = set(observed)

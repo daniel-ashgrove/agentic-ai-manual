@@ -55,7 +55,7 @@ class MemoryStore:
         if not self.path.exists():
             return [], {"fact": 0, "episode": 0}
         try:
-            data = json.loads(self.path.read_text())
+            data = json.loads(self.path.read_text(encoding="utf-8"))
             return [Memory(**r) for r in data["records"]], dict(data["counters"])
         except (ValueError, TypeError, KeyError) as exc:
             raise MemoryStoreError(f"{self.path} is unreadable: {exc!r}") from None
@@ -63,7 +63,7 @@ class MemoryStore:
     def _save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(dir=self.path.parent, suffix=".tmp")
-        with os.fdopen(fd, "w") as f:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump({"counters": self.counters,
                        "records": [asdict(r) for r in self.records]}, f, indent=1)
         os.replace(tmp, self.path)       # all or nothing: never a half-written file

@@ -163,11 +163,13 @@ class Comparison:
 
 def compare(first: list[Score], second: list[Score]) -> Comparison:
     """A paired comparison: the same cases and trials, matched one to one."""
+    keys = [(s.case_id, s.trial) for s in first]
+    if len(set(keys)) != len(keys) or sorted(keys) != sorted(
+            (s.case_id, s.trial) for s in second):
+        raise ValueError("the runs do not cover the same cases and trials, once each")
     pairs = {(s.case_id, s.trial): [s] for s in first}
     for s in second:
-        pairs.setdefault((s.case_id, s.trial), []).append(s)
-    if any(len(pair) != 2 for pair in pairs.values()):
-        raise ValueError("the two runs do not cover the same cases and trials")
+        pairs[(s.case_id, s.trial)].append(s)
     ok = {key: [s.outcome == "correct" for s in pair] for key, pair in pairs.items()}
     per_case: dict[str, list[int]] = {}
     for (case_id, _), (a, b) in ok.items():
@@ -194,14 +196,15 @@ class ScoreLog:
         entry = {"run": run_id, "config": config, **summarize(scores), **extra,
                  "scores": [asdict(s) for s in scores]}
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a") as f:
+        with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry) + "\n")
         return entry
 
     def runs(self) -> list[dict]:
         if not self.path.exists():
             return []
-        return [json.loads(line) for line in self.path.read_text().splitlines() if line]
+        lines = self.path.read_text(encoding="utf-8").splitlines()
+        return [json.loads(line) for line in lines if line]
 
 
 def decide_lesson(with_it: list[Score], without_it: list[Score]) -> tuple[str, str]:

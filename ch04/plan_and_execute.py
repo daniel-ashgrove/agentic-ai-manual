@@ -96,8 +96,8 @@ planner_prompt = ChatPromptTemplate.from_messages([
 ])
 
 # method="json_schema" uses Claude's structured outputs, which hold the reply to the
-# schema. The default forces a tool call, which Claude Sonnet 5.5 and other current
-# models reject.
+# schema. The default relies on forcing a tool call, which Claude Sonnet 5.5 and other
+# current models don't support; unforced, a reply in plain text fails to parse.
 planner = planner_prompt | llm.with_structured_output(Plan, method="json_schema")
 
 

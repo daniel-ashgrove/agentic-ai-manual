@@ -41,7 +41,8 @@ def library_slice(topic: str, prefixes: tuple) -> ToolContract:
 
 WORKERS = {
     "fares": Worker("fares",
-                    "Prices flights: fares, times, checked-bag fees and totals.",
+                    "Prices flights A, B and C: fares, times, checked-bag fees "
+                    "and totals.",
                     tuple(CONTRACTS) + (library_slice("baggage", ("baggage",)),)),
     "policy": Worker("policy",
                      "Answers questions about cancellations, refunds and pets.",
@@ -87,7 +88,7 @@ def make_delegate_contract(workers: dict, question: str, run: Runner, reports: l
     """The coordinator's one tool. Gate 2 admits a delegation and counts it in one
     step, under a lock, because an agent loop may run one turn's calls at once.
     The handler runs the worker and checks its report before anyone reads it."""
-    admitted, lock = [], threading.Lock()
+    admitted, reported, lock = [], set(), threading.Lock()
 
     def admit(args: dict) -> list[str]:
         brief = (args["worker"], " ".join(args["task"].split()))
@@ -95,7 +96,7 @@ def make_delegate_contract(workers: dict, question: str, run: Runner, reports: l
             if len(admitted) >= max_delegations:
                 return [f"no delegations left (the limit is {max_delegations}); answer "
                         f"from the reports you have, or say what could not be answered"]
-            if brief in admitted:
+            if brief in reported:
                 return ["that worker already had this exact task; use its report"]
             admitted.append(brief)
         return []
@@ -108,6 +109,8 @@ def make_delegate_contract(workers: dict, question: str, run: Runner, reports: l
         report = Report(worker, task, answer, tuple(evidence),
                         tuple(check_answer(answer, question, evidence)), calls)
         reports.append(report)
+        with lock:                        # a brief whose run failed may be asked again
+            reported.add((worker, task))
         return for_coordinator(report)
 
     return ToolContract(

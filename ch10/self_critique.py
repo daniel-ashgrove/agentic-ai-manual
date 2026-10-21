@@ -173,7 +173,13 @@ def attempt_history(result: Refinement) -> str:
 
 
 _NUMBER = re.compile(r"\d+(?:\.\d+)?")
+_PASSAGE_ID = re.compile(r"[a-z][a-z0-9-]*#\d+")      # refunds#3 names a passage
 _RULE_WORDS = re.compile(r"\b(always|never|must|should|every|do not|don't)\b")
+
+
+def _figures(text: str) -> set[str]:
+    """The numbers a text states. A passage ID's digits are part of a name."""
+    return set(_NUMBER.findall(_PASSAGE_ID.sub(" ", text.lower())))
 
 
 def _words(text: str) -> set[str]:
@@ -201,7 +207,7 @@ def check_lesson(result: Refinement, args: dict) -> list[str]:
                         "or 'every'")
     if evidence and not _words(note) & _words(evidence):
         problems.append("the note shares no words with what the check found")
-    missing = sorted(set(_NUMBER.findall(note)) - set(_NUMBER.findall(evidence)))
+    missing = sorted(_figures(note) - _figures(evidence))
     if evidence and missing:
         problems.append(f"the note states {', '.join(missing)}, which the check's "
                         f"finding does not")

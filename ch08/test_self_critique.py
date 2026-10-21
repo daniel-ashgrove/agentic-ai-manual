@@ -164,6 +164,10 @@ class Lessons(unittest.TestCase):
         self.assertIn("shares no words", self.keep(note="Something else entirely.").content)
         self.assertIn("states 60", self.keep(note="The bag fee was $60.").content)
 
+    def test_a_passage_id_is_a_name_not_a_number(self):
+        note = "The $40 bag fee sentence had no citation; baggage-2026#1 was added."
+        self.assertTrue(self.keep(note=note).ok)
+
     def test_one_current_lesson_per_rule(self):
         self.keep()
         self.keep(note="The bag fee sentence had no citation at all.")
@@ -175,7 +179,7 @@ class Lessons(unittest.TestCase):
         again = sc.LessonStore(self.folder, "flight-agent")
         self.assertEqual(len(again.lessons()), 1)
         self.assertEqual(again.add_lesson("not-current", "x", "e", "s2").memory_id, "lesson-2")
-        saved = json.loads(again.path.read_text())["counters"]
+        saved = json.loads(again.path.read_text(encoding="utf-8"))["counters"]
         self.assertEqual(saved, {"fact": 0, "episode": 1, "lesson": 2})
 
     def test_forget_all_then_new_lesson_starts_at_one(self):

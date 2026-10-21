@@ -67,6 +67,24 @@ class Loop(unittest.TestCase):
         self.assertEqual(result["tool_use_id"], "toolu_1")
         self.assertEqual(float(result["content"]), 2023.0)
 
+    def test_text_prints_with_a_tool_call_and_the_answer_is_returned_once(self):
+        client = ScriptedClient(
+            reply("tool_use", text("I'll compute the discounted total."),
+                  tool_use("340 * 7 * 0.85")),
+            reply("end_turn", text("You pay $2,023.00.")))
+        original, r.client, out = r.client, client, io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                answer = r.run_react_loop("What do I pay?")
+        finally:
+            r.client = original
+        self.assertEqual(answer, "You pay $2,023.00.")
+        self.assertEqual(out.getvalue().splitlines(), [
+            "Model response (step 1): "
+            "I'll compute the discounted total.",
+            "Action (step 1): calculate('340 * 7 * 0.85')",
+            "Observation (step 1): 2023.0"])
+
     def test_the_request_names_one_tool_and_one_call_per_turn(self):
         client = ScriptedClient(reply("end_turn", text("Done.")))
         run(client)

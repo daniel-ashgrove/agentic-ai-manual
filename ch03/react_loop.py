@@ -66,13 +66,6 @@ def run_react_loop(question: str, max_steps: int = 6) -> str:
             messages=messages,
         )
 
-        for block in response.content:
-            if block.type == "text" and block.text.strip():
-                # This is Claude's visible response text, shown alongside
-                # a tool call when there is one -- not a private reasoning
-                # trace. See Section 3.2 for why that distinction matters.
-                print(f"Model response (step {step}): {block.text.strip()}")
-
         if response.stop_reason != "tool_use":
             # Claude stopped for a reason other than requesting a tool --
             # normal completion, hitting max_tokens, or something else.
@@ -90,6 +83,14 @@ def run_react_loop(question: str, max_steps: int = 6) -> str:
                 f"Stopped early (stop_reason={response.stop_reason!r}) "
                 f"before reaching a final answer."
             )
+
+        for block in response.content:
+            if block.type == "text" and block.text.strip():
+                # This is Claude's visible response text, shown alongside
+                # the tool call -- not a private reasoning trace. See
+                # Section 3.2 for why that distinction matters. The final
+                # answer isn't printed here: the loop returns it.
+                print(f"Model response (step {step}): {block.text.strip()}")
 
         tool_call = next(b for b in response.content if b.type == "tool_use")
         # Safe to assume exactly one tool_use block: disable_parallel_tool_use

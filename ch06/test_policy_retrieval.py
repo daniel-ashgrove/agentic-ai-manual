@@ -142,6 +142,13 @@ class Checking(unittest.TestCase):
         report = [r for r in results if "forum-4471#1" in r][0]
         self.assertIn("(refunds#1)", report)
 
+    def test_a_citation_after_the_full_stop_belongs_to_that_sentence(self):
+        after = "The first bag costs $40. [baggage-2026#1] Flight B costs $175."
+        self.assertEqual(check_answer(after, QUESTION, self.results), [])
+        moved = "Flight B costs $175. [baggage-2026#1] Bags cost $40."   # not the next one
+        self.assertIn("states 40 with no source: 'Bags cost $40.'",
+                      check_answer(moved, QUESTION, self.results))
+
     def test_sentence_with_only_observed_numbers_needs_no_citation(self):
         self.assertEqual(check_answer("Flight B costs $175.", QUESTION, self.results), [])
 

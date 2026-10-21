@@ -65,11 +65,11 @@ class Store(unittest.TestCase):
     def test_an_unreadable_file_fails_loudly_and_is_not_overwritten(self):
         path = os.path.join(self.folder, "t-1041.json")
         for content in ["{not json", json.dumps([{"memory_id": "fact-1"}]), "[]"]:
-            with open(path, "w") as f:
+            with open(path, "w", encoding="utf-8") as f:
                 f.write(content)
             with self.assertRaises(MemoryStoreError):
                 self.store()
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 self.assertEqual(f.read(), content)
 
     def test_saving_leaves_no_temporary_files(self):

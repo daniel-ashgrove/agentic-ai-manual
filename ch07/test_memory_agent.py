@@ -107,7 +107,8 @@ class MemoryWiring(unittest.TestCase):
 
     def test_model_is_shown_the_contract_schemas(self):
         session = MemorySession(MemoryStore(self.folder, "t-1041"), "s")
-        contracts = ma.CONTRACTS + make_memory_contracts(session)
+        contracts = ma.POLICY_CONTRACTS + make_memory_contracts(session)
+        self.assertIn("search_policies", [c.name for c in contracts])
         for contract in contracts:
             self.assertEqual(ma.as_langchain_tool(contract).args_schema, contract.input_schema)
 

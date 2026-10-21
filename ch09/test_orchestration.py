@@ -82,6 +82,21 @@ class Briefs(unittest.TestCase):
         again = registry.execute("delegate", {"worker": "fares", "task": "  " + o.PRICE_B})
         self.assertIn("already had this exact task", again.content)
 
+    def test_a_brief_whose_run_failed_may_be_asked_again(self):
+        attempts = []
+        def flaky(worker, task):             # the first run drops its connection
+            attempts.append(task)
+            if len(attempts) == 1:
+                raise ConnectionError("connection dropped")
+            return "", [], 1
+        registry = o.ToolRegistry([o.make_delegate_contract(o.WORKERS, o.QUESTION, flaky, [])])
+        first = registry.execute("delegate", {"worker": "fares", "task": o.PRICE_B})
+        second = registry.execute("delegate", {"worker": "fares", "task": o.PRICE_B})
+        third = registry.execute("delegate", {"worker": "fares", "task": o.PRICE_B})
+        self.assertEqual(first.error_kind, "tool_failed")
+        self.assertTrue(second.ok)
+        self.assertIn("already had this exact task", third.content)
+
     def test_admission_is_atomic_when_calls_run_at_once(self):
         def slow(worker, task):
             time.sleep(0.2)
