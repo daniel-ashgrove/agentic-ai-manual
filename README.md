@@ -1,4 +1,8 @@
 # The Complete Agentic AI Engineering Manual: companion code
+## Get the book
+
+*The Complete Agentic AI Engineering Manual* is available on Amazon in
+[paperback](https://www.amazon.com/dp/B0HP7JGSZH) and [Kindle](https://www.amazon.com/dp/B0HP6GP6KX).
 
 The code for *The Complete Agentic AI Engineering Manual: 9 Battle-Tested Frameworks for Building Self-Improving
 LLM Agents* by Daniel Ashgrove. Every program in the book is here, and every listing printed in the book is this
